@@ -1,66 +1,56 @@
 # encoding: utf-8
+"""
+@file turbo worker
+@author wanghaitao01
+@date 2016/03/29
+"""
 import json
+import os
+import sys
+import time
 import threading
 import urllib
-import uuid
 
 from tornado import httpclient
 from tornado import ioloop
+
 import settings
+import turbo
 
-TASK_LIST = []
 SERVICE_DICT = {}
-RESULT_DICT = {}
+SERVICE_LIST = []
 
 
-def register_service(name, version, func):
-    if name in SERVICE_DICT:
-        SERVICE_DICT[name][version] = func
-    else:
-        SERVICE_DICT[name] = {version: func}
+def check_task_valid(tid):
+    """
+    Whether task is still enable or canceled
+    """
+    task = settings.TASK_COLLECTION.find_one({"id": tid})
+    if not task or task.get("canceled"):
+        return False
+    return True
 
 
-def service(func):
-    def service_wrapper(tid, params, *args, **kwargs):
-        RESULT_DICT[tid] = None
-        result = func(params, *args, **kwargs)
-        RESULT_DICT[tid] = result
-    return service_wrapper
-
-
-@service
-def add(params):
-    a = int(params.get("a"))
-    b = int(params.get("b"))
-    return a + b
-register_service("add", "0.0.1", add)
-
-
-@service
-def sub(params):
-    a = int(params.get("a"))
-    b = int(params.get("b"))
-    return a - b
-register_service("sub", "0.0.1", sub)
+def set_task_state(tid, state):
+    """
+    Set task state
+    """
+    settings.TASK_COLLECTION.update(
+        {"id": tid},
+        {
+            "$set": {
+                "state": state
+            }
+        })
 
 
 def register_worker():
     """
     Register service to master
     """
-    services = [
-        {
-            "name": "sub",
-            "version": "0.0.1"
-         },
-        {
-            "name": "add",
-            "version": "0.0.1"
-        }
-    ]
     params = {
         "worker": settings.WORKER,
-        "services": json.dumps(services)
+        "services": json.dumps(SERVICE_LIST)
     }
     url = "http://127.0.0.1:8888/register-worker?%s" % urllib.urlencode(params)
     http_client = httpclient.HTTPClient()
@@ -75,24 +65,55 @@ def register_worker():
     http_client.close()
 
 
+def restore_task(tid):
+    """
+    Restore task state to pending
+    """
+    print("restore task %s state to pending" % tid)
+    return 0
+
+
+def run_task_thread(func, tid, params, interval):
+    set_state = True
+    if interval > 0:
+        set_state = False
+        while check_task_valid(tid):
+            t = threading.Thread(target=func, args=(tid, params, set_state))
+            t.start()
+            t.join()
+            time.sleep(interval)
+    else:
+        t = threading.Thread(target=func, args=(tid, params, set_state))
+        t.start()
+        t.join()
+    print("task %s run over" % tid)
+
+
 def run_task(task):
+    """
+    Run task
+    """
+    tid = task.get("id")
     name = task.get("name")
     version = task.get("version")
     params = task.get("params")
 
     if name in SERVICE_DICT and version in SERVICE_DICT[name]:
         func = SERVICE_DICT[name][version]
-        tid = str(uuid.uuid1())
-        t = threading.Thread(target=func, args=(tid, params))
+        print("task %s run begin" % tid)
+        interval = task.get("interval", 0)
+        t = threading.Thread(target=run_task_thread, args=(func, tid, params, interval,))
         t.start()
-        t.join()
-        print "get result %s" % RESULT_DICT[tid]
+    else:
+        print("specific func does not exist in this worker")
+        restore_task(tid)
 
 
-def poll_task():
-    params = {
-        "worker": settings.WORKER
-    }
+def fetch_task():
+    """
+    Fetch one task from master
+    """
+    params = {"worker": settings.WORKER}
     url = "http://127.0.0.1:8888/fetch-task?%s" % urllib.urlencode(params)
     http_client = httpclient.HTTPClient()
     try:
@@ -109,13 +130,40 @@ def poll_task():
     http_client.close()
 
 
+def load_libs():
+    """
+    Load worker custom libs
+    """
+    for _, _, file_names in os.walk(settings.LIB_PATH):
+        for file_name in file_names:
+            module, ext = os.path.splitext(os.path.basename(file_name))
+            module = settings.LIB_PREFIX + module
+            __import__(module)
+
+    # fill into SERVICE_DICT and SERVICE_LIST
+    for name, func_dict in turbo.service.all.items():
+        version = func_dict.get("version")
+        module_name = func_dict.get("module")
+        function_name = func_dict.get("function")
+        func = getattr(sys.modules.get(module_name), function_name)
+        SERVICE_DICT[name] = {version: func}
+        SERVICE_LIST.append({
+            "name": name,
+            "version": version
+        })
+
+
 def main():
+    """
+    Worker main
+    """
+    load_libs()
     register_worker()
-    task_timer = ioloop.PeriodicCallback(poll_task, 5000)
+
+    task_timer = ioloop.PeriodicCallback(fetch_task, 1000)
     task_timer.start()
     ioloop.IOLoop.current().start()
 
 
 if "__main__" == __name__:
     main()
-
