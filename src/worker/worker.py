@@ -52,7 +52,7 @@ def register_worker():
         "worker": settings.WORKER,
         "services": json.dumps(SERVICE_LIST)
     }
-    url = "http://127.0.0.1:8888/register-worker?%s" % urllib.urlencode(params)
+    url = "%s/register-worker?%s" % (settings.MASTER, urllib.urlencode(params))
     http_client = httpclient.HTTPClient()
     try:
         response = http_client.fetch(url)
@@ -114,7 +114,7 @@ def fetch_task():
     Fetch one task from master
     """
     params = {"worker": settings.WORKER}
-    url = "http://127.0.0.1:8888/fetch-task?%s" % urllib.urlencode(params)
+    url = "%s/fetch-task?%s" % (settings.MASTER, urllib.urlencode(params))
     http_client = httpclient.HTTPClient()
     try:
         response = http_client.fetch(url, request_timeout=30000)

@@ -1386,3 +1386,22 @@ INFO 2016-03-29 20:26:53,565 master:60 11391 task 8513db0a-f5a9-11e5-bebf-54ee75
 INFO 2016-03-29 20:27:23,553 master:60 11391 task 96f3d1f4-f5a9-11e5-bebf-54ee7523d60e added ok, task:
 {'updated': datetime.datetime(2016, 3, 29, 12, 27, 23, 551238), 'id': '96f3d1f4-f5a9-11e5-bebf-54ee7523d60e', 'name': u'calc.sub', 'created': datetime.datetime(2016, 3, 29, 12, 27, 23, 551225), 'interval': 60, 'state': 0, 'version': u'0.0.1', 'params': {u'a': 1, u'b': 2}, 'timeout': 0, 'time': None, '_id': ObjectId('56fa74ab8343082c7f2cd3ff')}
 INFO 2016-03-29 20:27:50,036 master:83 11391 task 96f3d1f4-f5a9-11e5-bebf-54ee7523d60e canceled ok
+INFO 2016-03-30 20:34:02,823 master:164 9453 worker http://127.0.0.1:8881 registered ok, services:
+[{"version": "0.0.1", "name": "calc.add"}, {"version": "0.0.1", "name": "calc.sub"}, {"version": "0.0.1", "name": "lumia.trace_operate"}]
+INFO 2016-03-30 20:34:36,454 master:164 9453 worker http://127.0.0.1:8881 registered ok, services:
+[{"version": "0.0.1", "name": "calc.add"}, {"version": "0.0.1", "name": "calc.sub"}, {"version": "0.0.1", "name": "lumia.trace_operate"}]
+INFO 2016-03-30 20:38:18,431 master:60 9453 task 2c8cf266-f674-11e5-bebf-54ee7523d60e added ok, task:
+{'updated': datetime.datetime(2016, 3, 30, 12, 37, 34, 432334), 'id': '2c8cf266-f674-11e5-bebf-54ee7523d60e', 'name': u'lumia.trace_operate', 'created': datetime.datetime(2016, 3, 30, 12, 37, 34, 256134), 'interval': 10, 'state': 0, 'version': u'0.0.1', 'params': {u'url': u'http://www.baidu.com'}, 'timeout': 0, 'time': None, '_id': ObjectId('56fbc8b383430824ed4bce22')}
+INFO 2016-03-30 20:38:18,458 master:122 9453 worker http://127.0.0.1:8881 fetched task 2c8cf266-f674-11e5-bebf-54ee7523d60e
+INFO 2016-03-30 20:39:44,407 master:164 9453 worker http://127.0.0.1:8881 registered ok, services:
+[{"version": "0.0.1", "name": "calc.add"}, {"version": "0.0.1", "name": "calc.sub"}, {"version": "0.0.1", "name": "lumia.trace_operate"}]
+INFO 2016-03-30 20:40:29,779 master:60 9453 task 95fdd35a-f674-11e5-bebf-54ee7523d60e added ok, task:
+{'updated': datetime.datetime(2016, 3, 30, 12, 40, 29, 775604), 'id': '95fdd35a-f674-11e5-bebf-54ee7523d60e', 'name': u'lumia.trace_operate', 'created': datetime.datetime(2016, 3, 30, 12, 40, 29, 775588), 'interval': 10, 'state': 0, 'version': u'0.0.1', 'params': {u'url': u'http://www.baidu.com'}, 'timeout': 0, 'time': None, '_id': ObjectId('56fbc93d83430824ed4bce23')}
+INFO 2016-03-30 20:40:29,800 master:122 9453 worker http://127.0.0.1:8881 fetched task 95fdd35a-f674-11e5-bebf-54ee7523d60e
+INFO 2016-03-30 20:42:09,416 master:83 9453 task 95fdd35a-f674-11e5-bebf-54ee7523d60e canceled ok
+INFO 2016-03-30 20:52:44,079 master:60 9453 task 4baaffba-f676-11e5-bebf-54ee7523d60e added ok, task:
+{'updated': datetime.datetime(2016, 3, 30, 12, 52, 44, 74695), 'id': '4baaffba-f676-11e5-bebf-54ee7523d60e', 'name': u'lumia.trace_operate', 'created': datetime.datetime(2016, 3, 30, 12, 52, 44, 74614), 'interval': 60, 'state': 0, 'version': u'0.0.1', 'params': {u'url': u'http://127.0.0.1:8080/api/agent/turbo_trace_operate?operate=5'}, 'timeout': 90, 'time': None, '_id': ObjectId('56fbcc1c83430824ed4bce24')}
+INFO 2016-03-30 20:52:44,440 master:122 9453 worker http://127.0.0.1:8881 fetched task 4baaffba-f676-11e5-bebf-54ee7523d60e
+INFO 2016-03-30 21:02:54,960 master:83 9453 task 4baaffba-f676-11e5-bebf-54ee7523d60e canceled ok
+INFO 2016-03-30 21:04:29,430 master:122 9453 worker http://127.0.0.1:8881 fetched task 4baaffba-f676-11e5-bebf-54ee7523d60e
+INFO 2016-03-30 21:06:09,447 master:122 9453 worker http://127.0.0.1:8881 fetched task 4baaffba-f676-11e5-bebf-54ee7523d60e

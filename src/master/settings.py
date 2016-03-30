@@ -2,7 +2,7 @@
 import pymongo
 
 # server
-PORT = 8888
+PORT = 8880
 
 # mongo
 MONGO_CLIENT = pymongo.MongoClient('mongodb://127.0.0.1:27017/')

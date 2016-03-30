@@ -3,8 +3,8 @@ import os
 import pymongo
 
 # endpoint
-WORKER = "127.0.0.1:8080"
-MASTER = "127.0.0.1:8888"
+MASTER = "http://127.0.0.1:8880"
+WORKER = "http://127.0.0.1:8881"
 
 # mongodb
 MONGO_CLIENT = pymongo.MongoClient('mongodb://127.0.0.1:27017/')
