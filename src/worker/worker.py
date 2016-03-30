@@ -86,6 +86,8 @@ def run_task_thread(func, tid, params, interval):
         t = threading.Thread(target=func, args=(tid, params, set_state))
         t.start()
         t.join()
+    # set task state to finished
+    set_task_state(tid, settings.kStateFinished)
     print("task %s run over" % tid)
 
 

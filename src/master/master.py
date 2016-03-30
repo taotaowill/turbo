@@ -102,7 +102,12 @@ class FetchTask(tornado.web.RequestHandler):
         else:
             service_dict = services["services"]
             target = None
-            tasks = settings.TASK_COLLECTION.find({"state": settings.kStatePending})
+            tasks = settings.TASK_COLLECTION.find({
+                "state": settings.kStatePending,
+                "canceled": {
+                    "$ne": True
+                }
+            })
             for task in tasks:
                 tag = "%s#%s" % (task["name"], task["version"])
                 tag = tag.replace(".", "_")
@@ -181,7 +186,10 @@ def running_check():
     """
     Check running task, switch state of timeout task
     """
-    tasks = settings.TASK_COLLECTION.find({"state": settings.kStateRunning})
+    tasks = settings.TASK_COLLECTION.find({
+        "state": settings.kStateRunning,
+        "canceled": {"$ne": True}
+    })
     now = datetime.datetime.utcnow()
     for task in tasks:
         timeout = task.get("timeout")
@@ -201,7 +209,7 @@ def running_check():
                     }
                 }
             )
-            LOGGER.info("task %s switch state to pending" % task[id])
+            LOGGER.info("task %s switch state to pending" % task["id"])
 
 
 if __name__ == "__main__":

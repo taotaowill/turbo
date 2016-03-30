@@ -1405,3 +1405,18 @@ INFO 2016-03-30 20:52:44,440 master:122 9453 worker http://127.0.0.1:8881 fetche
 INFO 2016-03-30 21:02:54,960 master:83 9453 task 4baaffba-f676-11e5-bebf-54ee7523d60e canceled ok
 INFO 2016-03-30 21:04:29,430 master:122 9453 worker http://127.0.0.1:8881 fetched task 4baaffba-f676-11e5-bebf-54ee7523d60e
 INFO 2016-03-30 21:06:09,447 master:122 9453 worker http://127.0.0.1:8881 fetched task 4baaffba-f676-11e5-bebf-54ee7523d60e
+INFO 2016-03-30 21:07:49,440 master:122 9453 worker http://127.0.0.1:8881 fetched task 4baaffba-f676-11e5-bebf-54ee7523d60e
+INFO 2016-03-30 21:09:29,439 master:122 9453 worker http://127.0.0.1:8881 fetched task 4baaffba-f676-11e5-bebf-54ee7523d60e
+INFO 2016-03-30 21:11:09,443 master:122 9453 worker http://127.0.0.1:8881 fetched task 4baaffba-f676-11e5-bebf-54ee7523d60e
+INFO 2016-03-30 21:12:49,442 master:122 9453 worker http://127.0.0.1:8881 fetched task 4baaffba-f676-11e5-bebf-54ee7523d60e
+INFO 2016-03-30 21:14:29,426 master:122 9453 worker http://127.0.0.1:8881 fetched task 4baaffba-f676-11e5-bebf-54ee7523d60e
+INFO 2016-03-30 21:15:56,457 master:164 11252 worker http://127.0.0.1:8881 registered ok, services:
+[{"version": "0.0.1", "name": "calc.add"}, {"version": "0.0.1", "name": "calc.sub"}, {"version": "0.0.1", "name": "lumia.trace_operate"}]
+INFO 2016-03-30 21:19:45,726 master:169 11370 worker http://127.0.0.1:8881 registered ok, services:
+[{"version": "0.0.1", "name": "calc.add"}, {"version": "0.0.1", "name": "calc.sub"}, {"version": "0.0.1", "name": "lumia.trace_operate"}]
+INFO 2016-03-30 21:27:53,492 master:60 11370 task 34fa1efe-f67b-11e5-bebf-54ee7523d60e added ok, task:
+{'updated': datetime.datetime(2016, 3, 30, 13, 27, 53, 489201), 'id': '34fa1efe-f67b-11e5-bebf-54ee7523d60e', 'name': u'lumia.trace_operate', 'created': datetime.datetime(2016, 3, 30, 13, 27, 53, 489195), 'interval': 60, 'state': 0, 'version': u'0.0.1', 'params': {u'url': u'http://127.0.0.1:8080/api/agent/turbo_trace_operate?operate=6'}, 'timeout': 90, 'time': None, '_id': ObjectId('56fbd4598343082c6a2d1e25')}
+INFO 2016-03-30 21:27:53,752 master:127 11370 worker http://127.0.0.1:8881 fetched task 34fa1efe-f67b-11e5-bebf-54ee7523d60e
+INFO 2016-03-30 21:30:27,610 master:83 11370 task 34fa1efe-f67b-11e5-bebf-54ee7523d60e canceled ok
+INFO 2016-03-30 21:31:50,234 master:169 11370 worker http://127.0.0.1:8881 registered ok, services:
+[{"version": "0.0.1", "name": "calc.add"}, {"version": "0.0.1", "name": "calc.sub"}, {"version": "0.0.1", "name": "lumia.trace_operate"}]
