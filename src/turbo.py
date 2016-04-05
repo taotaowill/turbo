@@ -42,7 +42,7 @@ def make_service():
                     {
                         "id": tid,
                         "data": result_str,
-                        "created": datetime.datetime.utcnow()
+                        "created": datetime.datetime.now()
                     }
                 )
                 state = TASK_STATE_RUNNING
@@ -54,7 +54,7 @@ def make_service():
                     },
                     {
                         "$set": {
-                            "updated": datetime.datetime.utcnow(),
+                            "updated": datetime.datetime.now(),
                             "state": state
                         }
                     }

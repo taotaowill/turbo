@@ -56,8 +56,8 @@ class AddTask(tornado.web.RequestHandler):
             "version": self.get_argument('version'),
             "params": json.loads(self.get_argument('params')),
             "state": turbo.TASK_STATE_PENDING,
-            "created": datetime.datetime.utcnow(),
-            "updated": datetime.datetime.utcnow(),
+            "created": datetime.datetime.now(),
+            "updated": datetime.datetime.now(),
             "interval": int(self.get_argument('interval', 0)),
             "timeout": int(self.get_argument('timeout', 0)),
             "time": self.get_argument("time", None)
@@ -124,7 +124,7 @@ class FetchTask(tornado.web.RequestHandler):
                         {
                             "$set": {
                                 "state": turbo.TASK_STATE_RUNNING,
-                                "updated": datetime.datetime.utcnow()
+                                "updated": datetime.datetime.now()
                             }
                         },
                         True,
@@ -187,7 +187,7 @@ class RegisterWorker(tornado.web.RequestHandler):
                 "$set": {
                     "id": worker_id,
                     "services": service_dict,
-                    "updated": datetime.datetime.utcnow()
+                    "updated": datetime.datetime.now()
                 }
             },
             True,
@@ -218,7 +218,7 @@ def running_check():
         "state": turbo.TASK_STATE_RUNNING,
         "canceled": {"$ne": True}
     })
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now()
     for task in tasks:
         timeout = task.get("timeout")
         if not timeout:
@@ -232,7 +232,7 @@ def running_check():
                 },
                 {
                     "$set": {
-                        "updated": datetime.datetime.utcnow(),
+                        "updated": datetime.datetime.now(),
                         "state": turbo.TASK_STATE_PENDING
                     }
                 }
