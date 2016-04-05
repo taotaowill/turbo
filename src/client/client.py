@@ -29,7 +29,7 @@ def cancel_task(task):
     """
     Add task to master
     """
-    url = "%s/cancel-task?%s" % (MASTER, urllib.urlencode(task))
+    url = "%s/cancel-task?task=%s" % (MASTER, urllib.urlencode(task))
     http_client = httpclient.HTTPClient()
     try:
         response = http_client.fetch(url)
@@ -44,24 +44,34 @@ def cancel_task(task):
 
 
 def main():
+    params = {
+        "url": "http://127.0.0.1:8080/api/agent/turbo-trace-cluster-agent-errors?cluster=/baidu/galaxy",
+    }
+    params_json = json.dumps(params)
+    task = {
+        "name": "lumia.trace_lumia_url",
+        "version": "0.0.1",
+        "params": params_json,
+        "interval": 60,
+        "timeout": 60,
+        # "cron": "*/30 * * * * *"
+    }
+    status, tid = add_task(task)
+    print tid
+
     # params = {
-    #     "url": "http://www.baidu.com",
+    #     "a": 10,
+    #     "b": 15
     # }
     # params_json = json.dumps(params)
     # task = {
-    #     "name": "lumia.trace_operate",
+    #     "name": "calc.sub",
     #     "version": "0.0.1",
     #     "params": params_json,
-    #     "interval":  10
-    #     # "timeout": 0,
-    #     # "cron": "*/30 * * * * *"
+    #     "timeout": 60,
     # }
     # status, tid = add_task(task)
-    # # print tid
-    pa = {
-        "task": "95fdd35a-f674-11e5-bebf-54ee7523d60e"
-    }
-    cancel_task(pa)
+    # print tid
 
 
 if __name__ == "__main__":

@@ -5,10 +5,12 @@
 @date 2016/03/29
 """
 import json
+import logging
+import logging.handlers
 import os
 import sys
-import time
 import threading
+import time
 import urllib
 
 from tornado import httpclient
@@ -20,12 +22,32 @@ import turbo
 SERVICE_DICT = {}
 SERVICE_LIST = []
 
+LOGGER = logging.getLogger('worker')
+
+
+def init_log():
+    """
+    Init log
+    """
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(levelname)s %(asctime)s %(module)s:%(lineno)s %(process)d %(message)s',
+        filename='worker.log',
+        filemode='w'
+    )
+    formatter = logging.Formatter(
+            '%(levelname)s %(asctime)s %(module)s:%(lineno)s %(process)d %(message)s')
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    console.setFormatter(formatter)
+    logging.getLogger('worker').addHandler(console)
+
 
 def check_task_valid(tid):
     """
     Whether task is still enable or canceled
     """
-    task = settings.TASK_COLLECTION.find_one({"id": tid})
+    task = turbo.TASK.find_one({"id": tid})
     if not task or task.get("canceled"):
         return False
     return True
@@ -35,7 +57,7 @@ def set_task_state(tid, state):
     """
     Set task state
     """
-    settings.TASK_COLLECTION.update(
+    turbo.TASK.update(
         {"id": tid},
         {
             "$set": {
@@ -56,12 +78,12 @@ def register_worker():
     http_client = httpclient.HTTPClient()
     try:
         response = http_client.fetch(url)
-        print(response.body)
-        print("register worker ok")
+        LOGGER.info(response.body)
+        LOGGER.info("register worker ok")
     except httpclient.HTTPError as e:
-        print("Error: " + str(e))
+        LOGGER.error("register worker failed, " + str(e))
     except Exception as e:
-        print("Error: " + str(e))
+        LOGGER.errpr("register worker failed, " + str(e))
     http_client.close()
 
 
@@ -69,7 +91,7 @@ def restore_task(tid):
     """
     Restore task state to pending
     """
-    print("restore task %s state to pending" % tid)
+    LOGGER.info("restore task %s state to pending" % tid)
     return 0
 
 
@@ -87,8 +109,8 @@ def run_task_thread(func, tid, params, interval):
         t.start()
         t.join()
     # set task state to finished
-    set_task_state(tid, settings.kStateFinished)
-    print("task %s run over" % tid)
+    set_task_state(tid, turbo.TASK_STATE_STOPPED)
+    LOGGER.info("task %s run over" % tid)
 
 
 def run_task(task):
@@ -102,12 +124,12 @@ def run_task(task):
 
     if name in SERVICE_DICT and version in SERVICE_DICT[name]:
         func = SERVICE_DICT[name][version]
-        print("task %s run begin" % tid)
+        LOGGER.info("task %s run begin" % tid)
         interval = task.get("interval", 0)
         t = threading.Thread(target=run_task_thread, args=(func, tid, params, interval,))
         t.start()
     else:
-        print("specific func does not exist in this worker")
+        LOGGER.error("specific func does not exist in this worker")
         restore_task(tid)
 
 
@@ -123,12 +145,12 @@ def fetch_task():
         ret = json.loads(response.body)
         if ret.get("status"):
             task = ret.get("data")
-            print("get task from master %s" % task.get("id"))
+            LOGGER.info("get task from master %s" % task.get("id"))
             run_task(task)
     except httpclient.HTTPError as e:
-        print("Error: " + str(e))
+        LOGGER.error("Error: " + str(e))
     except Exception as e:
-        print("Error: " + str(e))
+        LOGGER.error("Error: " + str(e))
     http_client.close()
 
 
@@ -136,10 +158,10 @@ def load_libs():
     """
     Load worker custom libs
     """
-    for _, _, file_names in os.walk(settings.LIB_PATH):
+    for _, _, file_names in os.walk(turbo.LIB_PATH):
         for file_name in file_names:
             module, ext = os.path.splitext(os.path.basename(file_name))
-            module = settings.LIB_PREFIX + module
+            module = turbo.LIB_PREFIX + "." + module
             __import__(module)
 
     # fill into SERVICE_DICT and SERVICE_LIST
@@ -159,12 +181,16 @@ def main():
     """
     Worker main
     """
+    init_log()
     load_libs()
     register_worker()
 
     task_timer = ioloop.PeriodicCallback(fetch_task, 1000)
     task_timer.start()
+
+    LOGGER.info("turbo worker start...")
     ioloop.IOLoop.current().start()
+    LOGGER.info("turbo worker exit.")
 
 
 if "__main__" == __name__:

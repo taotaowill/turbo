@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>turbo</title>
+    <link type="text/css" rel="stylesheet" href="http://apps.bdimg.com/libs/bootstrap/3.3.4/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>tasks</h2>
+    <table class="table table-bordered">
+        <thead>
+            <th>id</th>
+            <th>name</th>
+            <th>version</th>
+            <th>params</th>
+            <th>created</th>
+            <th>updated</th>
+            <th>interval</th>
+            <th>timeout</th>
+            <th>state(p,r,s)</th>
+            <th>canceled</th>
+        </thead>
+        <tbody>
+        {% for task in tasks %}
+            <tr>
+                <td>{{ task["id"] }}</td>
+                <td>{{ task["name"]  }}</td>
+                <td>{{ task["version"]  }}</td>
+                <td>
+                    {% for key, value in task["params"].items() %}
+                        <span>{{ key }}</span> : <span>{{ value }}</span>
+                    {% end %}
+                </td>
+                <td>{{ task["created"]  }}</td>
+                <td>{{ task["updated"]  }}</td>
+                <td>{{ task["interval"]  }}</td>
+                <td>{{ task["timeout"]  }}</td>
+                <td>{{ task["state"]  }}</td>
+                <td>{{ task.get("canceled")  }}</td>
+            </tr>
+        {% end %}
+        </tbody>
+    </table>
+
+    <h2>services</h2>
+    <table class="table table-bordered">
+        <thead>
+            <th>worker</th>
+            <th>services</th>
+            <th>updated</th>
+        </thead>
+        <tbody>
+        {% for service in services %}
+            <tr>
+                <td>{{ service["id"] }}</td>
+                <td>
+                    {% for key, value in service["services"].items() %}
+                    <div>
+                        {% for k, v in value.items() %}
+                            <span>{{ k }}</span> : <span>{{ v }}</span>
+                        {% end %}
+                    </div>
+                    {% end %}
+                </td>
+                <td>{{ service["updated"]  }}</td>
+            </tr>
+        {% end %}
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

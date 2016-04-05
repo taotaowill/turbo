@@ -10,7 +10,7 @@ import turbo
 
 
 @turbo.service(version="0.0.1")
-def trace_operate(url):
+def trace_lumia_url(url):
     http_client = httpclient.HTTPClient()
     try:
         response = http_client.fetch(url)

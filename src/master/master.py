@@ -7,7 +7,8 @@
 import datetime
 import json
 import logging
-from logging import handlers
+import logging.handlers
+import os
 import uuid
 
 from bson import json_util
@@ -15,6 +16,8 @@ import tornado.ioloop
 import tornado.web
 
 import settings
+import turbo
+
 
 LOGGER = logging.getLogger('master')
 
@@ -23,14 +26,18 @@ def init_log():
     """
     Init log
     """
-    global LOGGER
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(levelname)s %(asctime)s %(module)s:%(lineno)s %(process)d %(message)s',
+        filename='master.log',
+        filemode='w')
     formatter = logging.Formatter(
-        '%(levelname)s %(asctime)s %(module)s:%(lineno)s %(process)d %(message)s')
-    file_handler = handlers.RotatingFileHandler(
-        "master.log", maxBytes=20*1024*1024, backupCount=5)
-    file_handler.setFormatter(formatter)
-    LOGGER.addHandler(file_handler)
-    LOGGER.setLevel(logging.DEBUG)
+        '%(levelname)s %(asctime)s %(module)s:%(lineno)s %(process)d %(message)s'
+    )
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    console.setFormatter(formatter)
+    logging.getLogger('master').addHandler(console)
 
 
 class AddTask(tornado.web.RequestHandler):
@@ -48,14 +55,14 @@ class AddTask(tornado.web.RequestHandler):
             "name": self.get_argument('name'),
             "version": self.get_argument('version'),
             "params": json.loads(self.get_argument('params')),
-            "state": settings.kStatePending,
+            "state": turbo.TASK_STATE_PENDING,
             "created": datetime.datetime.utcnow(),
             "updated": datetime.datetime.utcnow(),
             "interval": int(self.get_argument('interval', 0)),
             "timeout": int(self.get_argument('timeout', 0)),
             "time": self.get_argument("time", None)
         }
-        settings.TASK_COLLECTION.insert(task)
+        turbo.TASK.insert(task)
         ret["data"] = task["id"]
         LOGGER.info("task %s added ok, task:\n%s" % (task["id"], task))
         self.write(json_util.dumps(ret))
@@ -72,7 +79,7 @@ class CancelTask(tornado.web.RequestHandler):
             "data": None
         }
         tid = self.get_argument("task")
-        settings.TASK_COLLECTION.update(
+        turbo.TASK.update(
             {"id": tid},
             {
                 "$set": {
@@ -95,15 +102,15 @@ class FetchTask(tornado.web.RequestHandler):
             "data": None
         }
         worker_id = self.get_argument("worker")
-        services = settings.SERVICE_COLLECTION.find_one({"id": worker_id})
+        services = turbo.SERVICE.find_one({"id": worker_id})
         if not services:
             ret["status"] = False
             ret["message"] = "worker not registered yet"
         else:
             service_dict = services["services"]
             target = None
-            tasks = settings.TASK_COLLECTION.find({
-                "state": settings.kStatePending,
+            tasks = turbo.TASK.find({
+                "state": turbo.TASK_STATE_PENDING,
                 "canceled": {
                     "$ne": True
                 }
@@ -112,11 +119,11 @@ class FetchTask(tornado.web.RequestHandler):
                 tag = "%s#%s" % (task["name"], task["version"])
                 tag = tag.replace(".", "_")
                 if tag in service_dict.keys():
-                    settings.TASK_COLLECTION.update(
+                    turbo.TASK.update(
                         {"id": task["id"]},
                         {
                             "$set": {
-                                "state": settings.kStateRunning,
+                                "state": turbo.TASK_STATE_RUNNING,
                                 "updated": datetime.datetime.utcnow()
                             }
                         },
@@ -132,6 +139,26 @@ class FetchTask(tornado.web.RequestHandler):
             else:
                 ret["data"] = target
         self.write(json_util.dumps(ret))
+
+
+class Dashboard(tornado.web.RequestHandler):
+    """
+    Show all task info
+    """
+    def get(self):
+        # ret = {
+        #     "status": True,
+        #     "message": "ok",
+        #     "data": {}
+        # }
+        # tasks = turbo.TASK.find()
+        # services = turbo.SERVICE.find()
+        # ret["data"]["tasks"] = tasks
+        # ret["data"]["services"] = services
+        # self.write(json_util.dumps(ret))
+        tasks = turbo.TASK.find()
+        services = turbo.SERVICE.find()
+        self.render("index.html", tasks=tasks, services=services)
 
 
 class RegisterWorker(tornado.web.RequestHandler):
@@ -152,7 +179,7 @@ class RegisterWorker(tornado.web.RequestHandler):
             tag = "%s#%s" % (service["name"], service["version"])
             tag = tag.replace(".", "_")
             service_dict[tag] = service
-        settings.SERVICE_COLLECTION.update(
+        turbo.SERVICE.update(
             {
                 "id": worker_id
             },
@@ -179,6 +206,7 @@ def make_app():
         (r"/cancel-task", CancelTask),
         (r"/fetch-task", FetchTask),
         (r"/register-worker", RegisterWorker),
+        (r"/$", Dashboard),
     ])
 
 
@@ -186,8 +214,8 @@ def running_check():
     """
     Check running task, switch state of timeout task
     """
-    tasks = settings.TASK_COLLECTION.find({
-        "state": settings.kStateRunning,
+    tasks = turbo.TASK.find({
+        "state": turbo.TASK_STATE_RUNNING,
         "canceled": {"$ne": True}
     })
     now = datetime.datetime.utcnow()
@@ -198,14 +226,14 @@ def running_check():
         updated = task["updated"]
         expired = updated + datetime.timedelta(seconds=task["timeout"])
         if now > expired:
-            settings.TASK_COLLECTION.update(
+            turbo.TASK.update(
                 {
                     "id": task["id"]
                 },
                 {
                     "$set": {
                         "updated": datetime.datetime.utcnow(),
-                        "state": settings.kStatePending
+                        "state": turbo.TASK_STATE_PENDING
                     }
                 }
             )
@@ -221,4 +249,6 @@ if __name__ == "__main__":
     running_checker = tornado.ioloop.PeriodicCallback(running_check, 10000)
     running_checker.start()
 
+    LOGGER.info("turbo master start...")
     tornado.ioloop.IOLoop.current().start()
+    LOGGER.info("turbo master exit.")
