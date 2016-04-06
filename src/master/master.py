@@ -141,24 +141,29 @@ class FetchTask(tornado.web.RequestHandler):
         self.write(json_util.dumps(ret))
 
 
-class Dashboard(tornado.web.RequestHandler):
+class Index(tornado.web.RequestHandler):
     """
     Show all task info
     """
     def get(self):
-        # ret = {
-        #     "status": True,
-        #     "message": "ok",
-        #     "data": {}
-        # }
-        # tasks = turbo.TASK.find()
-        # services = turbo.SERVICE.find()
-        # ret["data"]["tasks"] = tasks
-        # ret["data"]["services"] = services
-        # self.write(json_util.dumps(ret))
+        self.render("index.html")
+
+
+class Status(tornado.web.RequestHandler):
+    """
+    Show turbo status
+    """
+    def get(self):
+        ret = {
+            "status": True,
+            "message": "ok",
+            "data": {}
+        }
         tasks = turbo.TASK.find()
         services = turbo.SERVICE.find()
-        self.render("index.html", tasks=tasks, services=services)
+        ret["data"]["tasks"] = tasks
+        ret["data"]["services"] = services
+        self.write(json_util.dumps(ret))
 
 
 class RegisterWorker(tornado.web.RequestHandler):
@@ -206,7 +211,8 @@ def make_app():
         (r"/cancel-task", CancelTask),
         (r"/fetch-task", FetchTask),
         (r"/register-worker", RegisterWorker),
-        (r"/$", Dashboard),
+        (r"/api/status", Status),
+        (r"/$", Index),
     ])
 
 

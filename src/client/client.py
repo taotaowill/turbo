@@ -44,8 +44,11 @@ def cancel_task(task):
 
 
 def main():
+    # params = {
+    #     "url": "http://127.0.0.1:8080/api/turbo-trace/trace-cluster-agent-errors?cluster=/baidu/galaxy",
+    # }
     params = {
-        "url": "http://127.0.0.1:8080/api/agent/turbo-trace-cluster-agent-errors?cluster=/baidu/galaxy",
+        "url": "http://127.0.0.1:8080/api/turbo-trace/trace-cluster-agent-states?cluster=/baidu/galaxy",
     }
     params_json = json.dumps(params)
     task = {

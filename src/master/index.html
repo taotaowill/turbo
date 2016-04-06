@@ -1,75 +1,186 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="turbo">
 <head>
     <meta charset="UTF-8">
     <title>turbo</title>
     <link type="text/css" rel="stylesheet" href="http://apps.bdimg.com/libs/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="http://apps.bdimg.com/libs/todc-bootstrap/3.1.1-3.2.1/todc-bootstrap.min.css">
+    <script src="http://apps.bdimg.com/libs/angular.js/1.5.0-beta.0/angular.min.js"></script>
+    <style>
+        .task {
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .task .title {
+            padding: 10px;
+            background-color: #eee;
+        }
+        .task .id {
+            width: 260px;
+            font-weight: 900;
+            float: left;
+        }
+        .task .state {
+            width: 60px;
+            float: left;
+        }
+        .task .time {
+            width: 260px;
+            float: right;
+        }
+        .task .canceled {
+            background-color: #F78D7F;
+            color: #fff;
+            padding: 3px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        .task .content {
+            padding: 10px;
+        }
+        .task .params {
+            white-space: pre;
+        }
+        .task .name {
+            float: left;
+            font-weight: 600;
+        }
+        .task .version {
+            width: 100px;
+            float: right;
+        }
+        .clear {
+            height: 0;
+            clear: both;
+        }
+    </style>
 </head>
-<body>
+<body ng-controller="IndexController">
+    <nav class="navbar navbar-masthead navbar-default navbar-static-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Turbo</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="#">light-weight task framework</a></li>
+                    <!--<li><a href="#about">About</a></li>-->
+                    <!--<li><a href="#contact">Contact</a></li>-->
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#">wanghaitao01</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-<div>
-    <h2>tasks</h2>
-    <table class="table table-bordered">
-        <thead>
-            <th>id</th>
-            <th>name</th>
-            <th>version</th>
-            <th>params</th>
-            <th>created</th>
-            <th>updated</th>
-            <th>interval</th>
-            <th>timeout</th>
-            <th>state(p,r,s)</th>
-            <th>canceled</th>
-        </thead>
-        <tbody>
-        {% for task in tasks %}
-            <tr>
-                <td>{{ task["id"] }}</td>
-                <td>{{ task["name"]  }}</td>
-                <td>{{ task["version"]  }}</td>
-                <td>
-                    {% for key, value in task["params"].items() %}
-                        <span>{{ key }}</span> : <span>{{ value }}</span>
-                    {% end %}
-                </td>
-                <td>{{ task["created"]  }}</td>
-                <td>{{ task["updated"]  }}</td>
-                <td>{{ task["interval"]  }}</td>
-                <td>{{ task["timeout"]  }}</td>
-                <td>{{ task["state"]  }}</td>
-                <td>{{ task.get("canceled")  }}</td>
-            </tr>
-        {% end %}
-        </tbody>
-    </table>
+<div class="container">
+    <div>
+        <span class="h3">Tasks</span>
+    </div>
+    <div>
+        <div class="task" ng-repeat="task in tasks">
+            <div class="title">
+                <span class="id"><a href='/cancel-task?task=[[ task.id ]]'>[[ task.id ]]</a></span>
+                <span class="state">[[ task.state  ]]</span>
+                <span ng-if="task.canceled" class="canceled">canceled</span>
+                <span class="time">
+                    <span>updated: </span>
+                    <span>[[ task.updated  ]]</span>
+                </span>
+                <span class="time">
+                    <span>created: </span>
+                    <span>[[ task.created  ]]</span>
+                </span>
+                <div class="clear"></div>
+            </div>
+            <div class="content">
+                <div>
+                    <span class="name">[[ task.name  ]]</span>
+                    <span class="version">version: [[ task.version  ]]</span>
+                    <span class="version">interval: [[ task.interval  ]]</span>
+                    <span class="version">timeout: [[ task.timeout  ]]</span>
+                </div>
+                <div class="params">
+                    <span>[[ task.params ]]</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <h2>services</h2>
-    <table class="table table-bordered">
-        <thead>
-            <th>worker</th>
-            <th>services</th>
-            <th>updated</th>
-        </thead>
-        <tbody>
-        {% for service in services %}
-            <tr>
-                <td>{{ service["id"] }}</td>
-                <td>
-                    {% for key, value in service["services"].items() %}
-                    <div>
-                        {% for k, v in value.items() %}
-                            <span>{{ k }}</span> : <span>{{ v }}</span>
-                        {% end %}
-                    </div>
-                    {% end %}
-                </td>
-                <td>{{ service["updated"]  }}</td>
-            </tr>
-        {% end %}
-        </tbody>
-    </table>
+    <div>
+        <h3>services</h3>
+    </div>
+    <div>
+        <div class="task" ng-repeat="service in services">
+            <div class="title">
+                <span class="id">[[ service.id ]]</span>
+                <span class="time">
+                    <span>updated: </span>
+                    <span>[[ service.updated ]]</span>
+                </span>
+                <div class="clear"></div>
+            </div>
+            <div class="content">
+                <span class="params">[[ service.services ]]</span>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+    var turbo = angular.module('turbo', []);
+    turbo.config([
+        '$interpolateProvider',
+        function ($interpolateProvider) {
+            $interpolateProvider.startSymbol('[[');
+            $interpolateProvider.endSymbol(']]');
+        }
+    ]);
+    turbo.controller('IndexController',
+        [
+            '$scope',
+            '$http',
+            function ($scope, $http) {
+                // 1.get status info
+                $http(
+                    {
+                        method: 'GET',
+                        url: '/api/status'
+                    }
+                ).success(
+                    function (ret) {
+                        if (ret.status) {
+                            $scope.tasks = ret.data.tasks;
+                            for (var i=0; i< $scope.tasks.length; i++) {
+                                var task = $scope.tasks[i];
+                                task.params = JSON.stringify(task.params, null, 4);
+                                task.created = (new Date(parseInt(task.created.$date))).toGMTString();
+                                task.updated = (new Date(parseInt(task.updated.$date))).toGMTString();
+                            }
+                            $scope.services = ret.data.services;
+                            for (var i=0; i< $scope.services.length; i++) {
+                                var service = $scope.services[i];
+                                service.services = JSON.stringify(service.services, null, 4);
+                                service.updated = (new Date(parseInt(service.updated.$date))).toGMTString();
+                            }
+                        } else {
+                            alert('get status failed, ' + ret["message"]);
+                        }
+                    }
+                ).error(function (err) {
+                        console.log('get status failed, ' + err);
+                    }
+                );
+            }
+        ]
+    );
+</script>
 
 </body>
 </html>
