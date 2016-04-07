@@ -47,9 +47,16 @@ def main():
     # params = {
     #     "url": "http://127.0.0.1:8080/api/turbo-trace/trace-cluster-agent-errors?cluster=/baidu/galaxy",
     # }
+    # params = {
+    #     "url": "http://127.0.0.1:8080/api/turbo-trace/trace-cluster-agent-states?cluster=/baidu/galaxy",
+    # }
+    # params = {
+    #     "url": "http://127.0.0.1:8080/api/turbo-trace/trace-cluster-agent-errors?cluster=/baidu/nmg01/galaxy",
+    # }
     params = {
-        "url": "http://127.0.0.1:8080/api/turbo-trace/trace-cluster-agent-states?cluster=/baidu/galaxy",
+        "url": "http://127.0.0.1:8080/api/turbo-trace/trace-cluster-agent-states?cluster=/baidu/nmg01/galaxy",
     }
+
     params_json = json.dumps(params)
     task = {
         "name": "lumia.trace_lumia_url",
