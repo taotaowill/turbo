@@ -45,10 +45,10 @@ def init_log():
 
 def check_task_valid(tid):
     """
-    Whether task is still enable or canceled
+    Whether task is still enable or stopped
     """
     task = turbo.TASK.find_one({"id": tid})
-    if not task or task.get("canceled"):
+    if not task or task.get("stopped"):
         return False
     return True
 

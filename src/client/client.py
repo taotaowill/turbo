@@ -25,11 +25,11 @@ def add_task(task):
     return False, None
 
 
-def cancel_task(task):
+def stop_task(task):
     """
-    Add task to master
+    stop task
     """
-    url = "%s/cancel-task?task=%s" % (MASTER, urllib.urlencode(task))
+    url = "%s/stop-task?task=%s" % (MASTER, urllib.urlencode(task))
     http_client = httpclient.HTTPClient()
     try:
         response = http_client.fetch(url)

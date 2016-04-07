@@ -8,7 +8,6 @@ import datetime
 import json
 import logging
 import logging.handlers
-import os
 import uuid
 
 from bson import json_util
@@ -68,9 +67,9 @@ class AddTask(tornado.web.RequestHandler):
         self.write(json_util.dumps(ret))
 
 
-class CancelTask(tornado.web.RequestHandler):
+class StopTask(tornado.web.RequestHandler):
     """
-    Client cancel task handler
+    Client stop task handler
     """
     def get(self):
         ret = {
@@ -83,11 +82,11 @@ class CancelTask(tornado.web.RequestHandler):
             {"id": tid},
             {
                 "$set": {
-                    "canceled": True
+                    "stopped": True
                 }
             }
         )
-        LOGGER.info("task %s canceled ok" % tid)
+        LOGGER.info("task %s stopped ok" % tid)
         self.write(json_util.dumps(ret))
 
 
@@ -111,7 +110,7 @@ class FetchTask(tornado.web.RequestHandler):
             target = None
             tasks = turbo.TASK.find({
                 "state": turbo.TASK_STATE_PENDING,
-                "canceled": {
+                "stopped": {
                     "$ne": True
                 }
             })
@@ -208,7 +207,7 @@ def make_app():
     """
     return tornado.web.Application([
         (r"/add-task", AddTask),
-        (r"/cancel-task", CancelTask),
+        (r"/stop-task", StopTask),
         (r"/fetch-task", FetchTask),
         (r"/register-worker", RegisterWorker),
         (r"/api/status", Status),
@@ -222,7 +221,7 @@ def running_check():
     """
     tasks = turbo.TASK.find({
         "state": turbo.TASK_STATE_RUNNING,
-        "canceled": {"$ne": True}
+        "stopped": {"$ne": True}
     })
     now = datetime.datetime.now()
     for task in tasks:

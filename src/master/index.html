@@ -29,7 +29,7 @@
             width: 260px;
             float: right;
         }
-        .task .canceled {
+        .task .stopped {
             background-color: #F78D7F;
             color: #fff;
             padding: 3px;
@@ -86,9 +86,9 @@
     <div>
         <div class="task" ng-repeat="task in tasks">
             <div class="title">
-                <span class="id"><a href='/cancel-task?task=[[ task.id ]]'>[[ task.id ]]</a></span>
+                <span class="id"><a href='/stop-task?task=[[ task.id ]]'>[[ task.id ]]</a></span>
                 <span class="state">[[ task.state  ]]</span>
-                <span ng-if="task.canceled" class="canceled">canceled</span>
+                <span ng-if="task.stopped" class="stopped">stopped</span>
                 <span class="time">
                     <span>updated: </span>
                     <span>[[ task.updated  ]]</span>
